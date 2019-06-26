@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>three.js</title>
+<meta name="robots" content="noindex,follow">
+<style>
+@charset "utf-8";a,abbr,acronym,address,applet,article,aside,audio,big,blockquote,body,caption,cite,code,dd,del,dfn,dialog,div,dl,dt,em,fieldset,figcaption,figure,font,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,html,iframe,ins,kbd,label,legend,li,mark,menu,nav,object,ol,p,pre,q,s,samp,section,small,span,strike,sub,sup,table,tbody,td,tfoot,th,thead,time,tr,tt,ul,var,video{border:0;font-size:inherit;font-family:inherit;font-style:inherit;font-weight:inherit;margin:0;outline:0;padding:0;vertical-align:baseline;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-o-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;max-height:999999px}a{margin:0;padding:0;font-size:100%;vertical-align:baseline;text-decoration:none!important;color:#000;-webkit-transition:.5s;transition:.5s}body{font-size:16px;-webkit-text-size-adjust:100%;line-height:1;background:#fff;color:#000;font-family:Verdana,"Hiragino Kaku Gothic Pro","ヒラギノ角ゴ Pro W3","メイリオ",Meiryo,"ＭＳ Ｐゴシック","Helvetica Neue",Helvetica,Arial,sans-serif;word-wrap:break-word;overflow-x:hidden;background-color:#6699ff;}
+	#mv{position: relative;}
+	#mv .box{
+		position: absolute;
+		left:30px;
+		top: 30%;
+		color: #fff;
+		width: 100%;
+	}
+	#mv h1{
+		font-size:80px;
+		font-weight: bold;
+	}
+	#mv .p1{
+		margin-top: 15px;
+		line-height: 1.6;
+		font-size: 14px;
+	}
+	#mv .p2{
+		line-height: 1.6;
+		font-size: 10px;
+		position: absolute;
+		right: 60px;
+		top: 30%;
+		text-align: right;
+	}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<body>
+
+<div id="mv">
+	<div class="box">
+	<h1>TITLE</h1>
+	<p class="p1">captioncaptioncaptioncaptioncaption<br>captioncaptioncaptioncaptioncaption<br>captioncaption</p>
+	<p class="p2">captioncaptioncaptioncaptioncaption<br>captioncaptioncaptioncaptioncaption<br>captioncaptioncaptioncaptioncaption<br>captioncaptioncaptioncaptioncaption<br>captioncaptioncaptioncaptioncaption<br>captioncaptioncaption</p>
+	</div>
+<canvas id="canvas"></canvas>
+</div>
+
+<script src="three/three.min.js"></script>
+<script src="three/OrbitControls.js"></script>
+
+<script src="three/OBJLoader.js"></script>
+<script src="three/MTLLoader.js"></script>
+
+<script>
+$(function(){
+	//基本設定
+	var width = 900;
+	var height = 900;
+
+	var renderer = new THREE.WebGLRenderer({
+		canvas: document.querySelector("#canvas"),
+        alpha: true
+	});
+	renderer.setPixelRatio(window.devicePixelRatio);
+	renderer.setSize(width, height);
+	var scene = new THREE.Scene();
+
+	// カメラ設定
+	var camera = new THREE.PerspectiveCamera(3,width / height,1,10000);
+	camera.position.set(1,300, 500); 
+    
+    // ライト設定
+    ambientLight = new THREE.AmbientLight(0xffffff);
+	hemisphereLight = new THREE.HemisphereLight(0xffffff,0x4169e1, 0.15);
+	scene.add(hemisphereLight);
+	scene.add(ambientLight);
+
+	// マウス操作
+	var controls = new THREE.OrbitControls(camera);
+    controls.enableZoom = false;
+    controls.autoRotate = true;
+
+	// MTL,Obj読み込み
+	new THREE.MTLLoader().setPath('./three/')
+    .load('table.mtl',
+    function(materials){
+        materials.preload();
+        new THREE.OBJLoader().setPath('./three/').setMaterials(materials).load('table.obj',
+              function(object){
+                objmodel = object.clone();
+                obj = new THREE.Object3D();
+                obj.add(objmodel);
+                obj.position.set(0, -1.2, 0);
+                scene.add(obj);        
+            }
+        );
+    });
+    var obj = new THREE.Mesh();
+
+	// 実行
+	animate();
+    function animate(){
+        requestAnimationFrame(animate);
+        obj.rotation.y += 0.002;
+        renderer.render(scene, camera);
+    };
+
+	// 画面リサイズ
+	onResize();
+	window.addEventListener('resize', onResize);
+
+	function onResize() {
+	  var width = window.innerWidth;
+	  var height = window.innerHeight;
+
+	  renderer.setPixelRatio(window.devicePixelRatio);
+	  renderer.setSize(width, height);
+
+	  camera.aspect = width / height;
+	  camera.updateProjectionMatrix();
+	}
+	});
+
+</script>
+
+</body>
+</html>
